@@ -6,7 +6,7 @@ import json
 import openai
 import backoff
 
-from typing import Tuple, Dict, List
+from typing import List
 from loguru import logger
 
 logger.remove()
@@ -38,6 +38,7 @@ class GPTGenerator():
         **kwargs
     ) -> str:
 
+        logger.debug(f'Formatted the message')
         message = add_usr_msg(message)
 
         if self.keep_history:
@@ -50,13 +51,16 @@ class GPTGenerator():
 
             return response
 
-        message = self.messages + [message]
         response = self._get_response(
-            message, json_mode, **kwargs
+            self.messages + [message], json_mode, **kwargs
         )
 
+        return response
 
     def _get_response(self, messages, json_mode, **kwargs) -> str:
+        logger.debug(f'Sending request to the LLM with JSON mode: {json_mode}')
+        logger.info(f'Length of the message stream: {len(messages)}')
+
         if json_mode:
             completions = self.client.chat.completions.create(
                 model=self.model_id,
@@ -79,7 +83,7 @@ class GPTGenerator():
 
             op = completions.choices[0].message.content
 
-        logger.debug(f'Prompts: {messages[-1]}, output: {op}')
+        logger.debug(f'Prompt: {messages[-1]}, output: {op}')
         logger.debug(f'Tokens used in generation using {self.model_id}: {completions.usage}')
 
         self.total_tokens += completions.usage.total_tokens

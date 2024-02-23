@@ -1,5 +1,5 @@
 from textwrap import dedent
-from llm import GPTGenerator
+from .llm import GPTGenerator
 
 sys_prompt = {
     'role': 'system',
@@ -10,7 +10,7 @@ sys_prompt = {
 }
 verify = GPTGenerator(
     model_id='open-hermes',
-    uri='http://127.0.0.1:8888/v1/',
+    uri='http://127.0.0.1:8002/v1/',
     messages=[sys_prompt],
     keep_history=False
 )
@@ -19,6 +19,7 @@ sys_prompt = {
     'role': 'system',
     'content': dedent("""
     Presume a role of a general physician. You should ALWAYS ask me questions to help with the diagnosis of what is happening to me. You should respond with a diagnosis only when you have sufficient knowledge. Otherwise always ask more questions to me to collect more data.
+    Do not ask too many questions in one go otherwise I will get overwhelmed. Ask me 1-2 questions when required in each turn. You should take more turns of asking me questions to arrive at a diagnostic.
     Be very empathetic to me while asking or suggesting things.
     NEVER GIVE ME ANY ADVICE ON MEDICINE OR ANY PRESCRIPTION.
     """)
