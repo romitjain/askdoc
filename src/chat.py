@@ -6,7 +6,8 @@ from .engines import verify, medical
 logger.remove()
 logger.add(sys.stdout, format="{time} {level} {message}", level='INFO')
 
-def respond(message, history):
+def respond(message, history, file):
+    logger.info(f'File type: {file}')
     logger.debug(f'History: {history}')
     v = verify(message)
     logger.info(f'Is medical query: {v}')
@@ -17,7 +18,7 @@ def respond(message, history):
 
     return medical(message)
 
-demo = gr.ChatInterface(respond)
+demo = gr.ChatInterface(respond, additional_inputs=gr.File(label="Upload a medical report"))
 
 if __name__ == "__main__":
     demo.launch()
