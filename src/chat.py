@@ -1,7 +1,10 @@
 import sys
 import gradio as gr
 from loguru import logger
-from .engines import verify, medical, report_qna, ReportParser
+from .generators import verify, medical
+from .engines import ReportParser, UserMemory
+
+memory = UserMemory()
 
 logger.remove()
 logger.add(sys.stdout, format="{time} {level} {message}", level='INFO')
@@ -21,17 +24,23 @@ def respond(message, history, file):
         try:
             parser = ReportParser()
             parsed_report = parser(file)
+            cleaned_report = parser.clean_ocr(parsed_report)
         except Exception as err:
             raise IOError(f'Not able to parse the file: {err}. Make sure the file is a PDF')
 
         # Add to memory
+        memory.add_memory(
+            documents=list(cleaned_report.values()),
+            metadata=[
+                f'Medical document, page: {k}' for k in cleaned_report.keys()]
+        )
 
-        # Query match message to the medical report, extract and then send to medical
-        medical_report = []
-        for idx, ocr in parsed_report.items():
-            medical_report.append(
-                report_qna(ocr, json_mode=True)
-            )
+    # Query match message to the medical report, extract and then send to medical
+    relevant_msg = memory.search(message)
+    logger.info(f'Found relevant messages: {relevant_msg}')
+
+    if relevant_msg:
+        return medical(f'Context: {relevant_msg}\nQuery: {message}')
 
     return medical(message)
 

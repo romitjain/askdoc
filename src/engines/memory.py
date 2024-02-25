@@ -4,9 +4,9 @@ from typing import List, Dict
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
 
-from .utils import log_time
+from ..utils import log_time
 
-class UserHistory:
+class UserMemory:
     def __init__(self) -> None:
         self.encoder = SentenceTransformer('pritamdeka/S-PubMedBert-MS-MARCO')
         # Counter of number of documents that are embedded for the user
@@ -18,7 +18,7 @@ class UserHistory:
         self.embeddings = np.array([])
 
     @log_time(name='embedder')
-    def embed_documents(self, documents: List[str], metadata: List[str]):
+    def add_memory(self, documents: List[str], metadata: List[str]):
         """
         Embed a list of documents using the provided embedding model.
         """
@@ -45,12 +45,17 @@ class UserHistory:
             })
             self.counter += 1
 
+    @log_time(name='search')
     def search(self, query, top_k=5) -> List[Dict]:
         """
         Search for the most similar documents to a query embedding.
         
         Search is performed in a numpy array
         """
+        # Exit early if the memory does not have anything
+        if not self.embeddings.any():
+            return None
+
         query_embedding = self.encoder.encode(query)
 
         similarities = cosine_similarity(query_embedding.reshape(1, -1), self.embeddings)
@@ -74,9 +79,9 @@ if __name__ == '__main__':
     parser = ReportParser()
     parsed_report = parser(filename=args.f)
 
-    history = UserHistory()
+    history = UserMemory()
 
-    history.embed_documents(
+    history.add_memory(
         documents=list(parsed_report.values()),
         metadata=[f'Medical document, page: {k}' for k in parsed_report.keys()]
     )
