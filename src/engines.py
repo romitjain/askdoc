@@ -1,5 +1,6 @@
 from textwrap import dedent
 from .llm import GPTGenerator
+from .reporting import ReportParser
 
 sys_prompt = {
     'role': 'system',
@@ -25,3 +26,19 @@ sys_prompt = {
     """)
 }
 medical = GPTGenerator(model_id='gpt-4-0125-preview', messages=[sys_prompt])
+
+
+sys_prompt = {
+    'role': 'system',
+    'content': dedent("""
+    You are an assistant to a general physician. I will send you OCR data from my medical report.
+    You have to extract important details from the report OCR.
+        Patient Information:
+        Test Conducted:
+        Test Measurement:
+        Test Normal range:
+        Comments:
+    Always reply in JSON mode
+    """)
+}
+report_qna = GPTGenerator(model_id='gpt-4-0125-preview', messages=[sys_prompt])
