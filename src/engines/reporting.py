@@ -4,12 +4,18 @@ from textwrap import dedent
 from typing import Dict
 from loguru import logger
 from pdf2image import convert_from_path
+from functools import partial
+from concurrent.futures import ThreadPoolExecutor
 
-from .llm import GPTGenerator
 from src.utils import log_time
+from src.engines.llm import GPTGenerator
 
 logger.remove()
-logger.add(sys.stdout, format="{time} {level} {message}", level='INFO')
+logger.add(sys.stdout, format="{time} {level} {message}", level='DEBUG')
+
+
+def process_image(image):
+    return pytesseract.image_to_string(image).strip()
 
 class ReportParser():
     def __init__(self) -> None:
@@ -23,16 +29,18 @@ class ReportParser():
         """
         image_ocr = {}
 
-        self.images = convert_from_path(filename)
+        images = convert_from_path(filename)
 
-        for idx, image in enumerate(self.images):
+        for idx, image in enumerate(images):
             logger.info(f'Processing page number {idx} of the PDF')
 
-            text: str = pytesseract.image_to_string(image)
-            text = text.strip()
+            text: str = pytesseract.image_to_string(image).strip()
             image_ocr.update({idx: text})
 
         return image_ocr
+
+    def parse(self, filename: str) -> Dict:
+        return self(filename)
 
     @log_time('clean_ocr')
     def clean_ocr(self, ocr: Dict) -> Dict:
@@ -40,7 +48,7 @@ class ReportParser():
             'role': 'system',
             'content': dedent("""
             Assume the role of an assistant to a general physician.
-            I will send you OCR data from my medical report.
+            I will send you the OCR data from my medical report.
             You have to extract important details from the report OCR.
                 Patient Information:
                 Test Conducted:
@@ -53,9 +61,13 @@ class ReportParser():
 
         report_cleaner = GPTGenerator(model_id='gpt-4-0125-preview', messages=[sys_prompt], keep_history=False)
 
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(partial(report_cleaner, json_mode=True), o) for o in ocr.values()]
+            results = [future.result() for future in futures]
+
         cleaned_ocr = {}
-        for idx, ocr in ocr.items():
-            cleaned_ocr.update({idx: report_cleaner(ocr, json_mode=True)})
+        for idx, o in enumerate(results):
+            cleaned_ocr.update({idx: str(o)})
 
         return cleaned_ocr
 
@@ -69,7 +81,8 @@ if __name__ == '__main__':
 
     parser = ReportParser()
     parsed_report = parser(filename=args.f)
+    cleaned_ocr = parser.clean_ocr(parsed_report)
 
-    for k, v in parsed_report.items():
+    for k, v in cleaned_ocr.items():
         print(v)
         print('\n')

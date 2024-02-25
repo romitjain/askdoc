@@ -15,15 +15,15 @@ def respond(message, history, file):
     logger.info(f'Is medical query: {v}')
 
     # If it is not a medical query, respond appropriately
-    if v.lower() == 'no':
-        return 'I can not help you with your query. Please keep your queries realted to medical context'
+    # if v.lower() == 'no':
+    #     return 'I can not help you with your query. Please keep your queries realted to medical context'
 
     # If a file is provided, process the file for further QnA
     if file:
         logger.info(f'Parsing the data in the file" {file}')
         try:
             parser = ReportParser()
-            parsed_report = parser(file)
+            parsed_report = parser.parse(file)
             cleaned_report = parser.clean_ocr(parsed_report)
         except Exception as err:
             raise IOError(f'Not able to parse the file: {err}. Make sure the file is a PDF')
@@ -31,8 +31,7 @@ def respond(message, history, file):
         # Add to memory
         memory.add_memory(
             documents=list(cleaned_report.values()),
-            metadata=[
-                f'Medical document, page: {k}' for k in cleaned_report.keys()]
+            metadata=[f'Medical document, page: {k}' for k in cleaned_report.keys()]
         )
 
     # Query match message to the medical report, extract and then send to medical

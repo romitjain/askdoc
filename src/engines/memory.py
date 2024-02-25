@@ -77,12 +77,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     parser = ReportParser()
-    parsed_report = parser(filename=args.f)
+    parsed_report = parser.parse(filename=args.f)
+    cleaned_report = parser.clean_ocr(parsed_report)
 
     history = UserMemory()
 
     history.add_memory(
-        documents=list(parsed_report.values()),
+        documents=list(cleaned_report.values()),
         metadata=[f'Medical document, page: {k}' for k in parsed_report.keys()]
     )
 
