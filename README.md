@@ -1,11 +1,13 @@
 # AskDoc
 
-user flow
-    - ask for a medical-related question
-    - wants to understand the medicines
-    - wants to book consultations
+This bot understands your medical concerns and helps diagnose them. Here is what you can do:
 
-tech flow
+1. Ask for your health-related questions.
+2. Send a medical report and ask questions based on that
+
+Under the hood, it is a:
+
+1. ChatGPT
     - give GPT a personality prompt
     - validation of input
       - is it a medical question or not

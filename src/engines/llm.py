@@ -12,12 +12,7 @@ from loguru import logger
 logger.remove()
 logger.add(sys.stdout, format="{time} {level} {message}", level='INFO')
 
-add_assistant_msg_json = lambda x: {'role': 'assistant', 'content': json.dumps(x)}
-add_usr_msg_json = lambda x: {'role': 'user', 'content': json.dumps(x)}
-add_assistant_msg = lambda x: {'role': 'assistant', 'content': x}
-add_usr_msg = lambda x: {'role': 'user', 'content': x}
-
-class GPTGenerator():
+class LLM():
     def __init__(self, model_id: str, messages: List=[], uri: str=None, keep_history: bool=True) -> None:
         from dotenv import load_dotenv
         load_dotenv()
@@ -39,20 +34,17 @@ class GPTGenerator():
     ) -> str:
 
         logger.debug(f'Formatted the message')
-        message = add_usr_msg(message)
 
         if self.keep_history:
-            self.messages.append(message)
+            self._add_msg(message, json_mode, 'user')
             response = self._get_response(
                 self.messages, json_mode, **kwargs
             )
-            formatted_response = add_assistant_msg_json(response) if json_mode else add_assistant_msg(response)
-            self.messages.append(formatted_response)
-
+            self._add_msg(message, json_mode, 'assistant')
             return response
 
         response = self._get_response(
-            self.messages + [message], json_mode, **kwargs
+            self.messages + [{'role': 'user', 'content': message}], json_mode, **kwargs
         )
 
         return response
@@ -91,3 +83,17 @@ class GPTGenerator():
         self.output_tokens += completions.usage.completion_tokens
 
         return op
+
+    def _add_msg(self, x: str, json_mode: bool = False, role: str = 'user'):
+
+        assert role in ['system', 'assistant', 'user'], 'Role should be one of (user, system, assistant)'
+
+        if json_mode:
+            {'role': role, 'content': json.dumps(x)}
+
+        else:
+            self.messages.append({
+                'role': role,
+                'content': x
+            })
+

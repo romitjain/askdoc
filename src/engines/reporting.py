@@ -8,7 +8,7 @@ from functools import partial
 from concurrent.futures import ThreadPoolExecutor
 
 from src.utils import log_time
-from src.engines.llm import GPTGenerator
+from src.engines.llm import LLM
 
 logger.remove()
 logger.add(sys.stdout, format="{time} {level} {message}", level='DEBUG')
@@ -59,7 +59,7 @@ class ReportParser():
             """)
         }
 
-        report_cleaner = GPTGenerator(model_id='gpt-4-0125-preview', messages=[sys_prompt], keep_history=False)
+        report_cleaner = LLM(model_id='gpt-4-0125-preview', messages=[sys_prompt], keep_history=False)
 
         with ThreadPoolExecutor() as executor:
             futures = [executor.submit(partial(report_cleaner, json_mode=True), o) for o in ocr.values()]
