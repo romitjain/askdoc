@@ -91,11 +91,13 @@ def respond(message, history, file):
 
     return medical(message, image=image)
 
-demo = gr.ChatInterface(
-    respond,
-    chatbot=gr.Chatbot(value=[(None, "Welcome 👋. I am your personal doctor. You can ask me anything related to your medical concerns")]),
-    additional_inputs=gr.File(label="Upload a medical report")
-)
+def main():
+    demo = gr.ChatInterface(
+        respond,
+        chatbot=gr.Chatbot(value=[(None, "Welcome 👋. I am your personal doctor. You can ask me anything related to your medical concerns")]),
+        additional_inputs=gr.File(label="Upload a medical report")
+    )
+    demo.launch()
 
 if __name__ == "__main__":
-    demo.launch()
+    main()

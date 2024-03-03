@@ -5,21 +5,10 @@ This bot understands your medical concerns and helps diagnose them. Here is what
 1. Ask for your health-related questions.
 2. Send a medical report and ask questions based on that
 
-Under the hood, it is a:
+Components
 
-1. ChatGPT
-    - give GPT a personality prompt
-    - validation of input
-      - is it a medical question or not
-      - can a health doc answer this
-    - validation of output
-      - should not be prescriptive of a drug
-      - should be grounded somehow
-    - if the user adds an attachment
-      - parse the attachment
-      - send it to GPT (OCR + Image)
-    - memory
-      - save abstraction of every 10 conversations in memory
-      - save abstraction of attachments/reports
-    - personalization
-      - retrieve from memory during runtime for the user
+1. **ChatGPT (Vision)**: This is given a prompt to act like a doctor and do diagnostics
+2. **Tesseract**: To extract information from PDF and image reports
+3. **Validation agent** (Coming soon): This validates input/output
+4. **Memory** stored in NumPy array. This memory is queried for information when the user asks for a query
+5. **Summarizer** that summarizes after 100 turns and stores that summary in the memory
