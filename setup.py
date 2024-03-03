@@ -8,7 +8,18 @@ setup(
     name='askdoc',
     version='0.1.1',
     packages=find_packages(),
-    install_requires=read_requirements(),
+    install_requires=[
+        'loguru==0.7.2',
+        'gradio==4.19.2',
+        'loguru==0.7.2',
+        'openai==1.13.3',
+        'backoff==2.2.1',
+        'numpy==1.24.3',
+        'sentence-transformers==2.3.1',
+        'pytesseract==0.3.10',
+        'pdf2image==1.17.0',
+        'python-dotenv==0.21.1'
+    ],
     entry_points={
         'console_scripts': [
             'askdoc=src.chat:main',
