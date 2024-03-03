@@ -13,13 +13,15 @@ Components
 4. **Memory** stored in NumPy array. This memory is queried for information when the user asks for a query
 5. **Summarizer** that summarizes after 100 turns and stores that summary in the memory
 
-## Installation
+## Setup
 
 ### Clone the repo
 
 ```bash
 git clone <repo>
 cd askdoc
+touch .env
+open .env # Add OPENAI_API_KEY to this
 ```
 
 ### Create a new virtualenv
