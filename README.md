@@ -12,3 +12,32 @@ Components
 3. **Validation agent** (Coming soon): This validates input/output
 4. **Memory** stored in NumPy array. This memory is queried for information when the user asks for a query
 5. **Summarizer** that summarizes after 100 turns and stores that summary in the memory
+
+## Installation
+
+### Clone the repo
+
+```bash
+git clone <repo>
+cd askdoc
+```
+
+### Create a new virtualenv
+
+```bash
+python3 -m venv myenv
+source myenv/bin/activate
+```
+
+### Install the package
+
+```bash
+pip install .
+```
+
+### Run the command
+
+```bash
+# This will open a local server
+askdoc
+```
