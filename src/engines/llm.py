@@ -89,7 +89,7 @@ class LLM():
         assert role in ['system', 'assistant', 'user'], 'Role should be one of (user, system, assistant)'
 
         if json_mode:
-            {'role': role, 'content': json.dumps(x)}
+            self.messages.append({'role': role, 'content': json.dumps(x)})
 
         else:
             self.messages.append({
